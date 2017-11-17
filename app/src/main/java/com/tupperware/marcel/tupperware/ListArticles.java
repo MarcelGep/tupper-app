@@ -3,9 +3,16 @@ package com.tupperware.marcel.tupperware;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -17,11 +24,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -37,7 +41,11 @@ public class ListArticles extends AppCompatActivity {
     List<Articles> articleList = new ArrayList<>();
 
     Toolbar toolbar;
-    ActionBar actionBar;
+    //ActionBar actionBar;
+
+    DrawerLayout drawerLayoutAll;
+    ActionBarDrawerToggle drawerToggle;
+    NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +54,48 @@ public class ListArticles extends AppCompatActivity {
 
         toolbar = (Toolbar) findViewById(R.id.toolbar1);
         setSupportActionBar(toolbar);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            toolbar.setElevation(25);
+        }
 
-        actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        //actionBar = getSupportActionBar();
+        //actionBar.setDisplayHomeAsUpEnabled(true);
 
         datasource = new ArticleDataSource(this);
+
+        drawerLayoutAll = (DrawerLayout) findViewById(R.id.drawerlayoutall);
+        drawerToggle = new ActionBarDrawerToggle(this,
+                                                    drawerLayoutAll,
+                                                    toolbar,
+                                                    R.string.auf, R.string.zu);
+        drawerLayoutAll.addDrawerListener(drawerToggle);
+
+        drawerToggle.syncState();
+
+        navigationView = (NavigationView) findViewById(R.id.navView);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.newArticle : {
+                        startActivity(new Intent(getApplicationContext(), NewCatalogArticle.class));
+                        break;
+                    }
+                    case R.id.myTupperWare : {
+                        startActivity(new Intent(getApplicationContext(), ListArticles.class));
+                        break;
+                    }
+                    case R.id.catalog : {
+                        startActivity(new Intent(getApplicationContext(), ListCatalog.class));
+                        break;
+                    }
+                }
+
+                drawerLayoutAll.closeDrawer(GravityCompat.START);
+                item.setChecked(true);
+                return false;
+            }
+        });
     }
 
     @Override
@@ -60,13 +105,29 @@ public class ListArticles extends AppCompatActivity {
         if(id == R.id.action_settings)
             return true;
 
-        if(id == android.R.id.home){
+        /*if(id == android.R.id.home){
             onBackPressed();
+            return true;
+        }*/
+        if (drawerToggle.onOptionsItemSelected(item)){
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onPostCreate(savedInstanceState, persistentState);
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(new Configuration());
+    }
+
 
     protected void onDestroy(){
         super.onDestroy();
@@ -225,7 +286,7 @@ public class ListArticles extends AppCompatActivity {
                         String quantity = etNewQuantity.getText().toString();
                         String note = etNewNote.getText().toString();
 
-                        if ((TextUtils.isEmpty(dimensions)) || (TextUtils.isEmpty(content)) || (TextUtils.isEmpty(price)) || (TextUtils.isEmpty(color)) || (TextUtils.isEmpty(quantity)) || (TextUtils.isEmpty(note))) {
+                        if ((TextUtils.isEmpty(dimensions)) || (TextUtils.isEmpty(content)) || (TextUtils.isEmpty(price)) || (TextUtils.isEmpty(color)) || (TextUtils.isEmpty                            (quantity)) || (TextUtils.isEmpty(note))) {
                             Log.d(LOG_TAG, "Ein Eintrag enthielt keinen Text. Daher Abbruch der Änderung.");
                             Toast.makeText(getApplicationContext(), "Eingabe fehlerhaft!", Toast.LENGTH_LONG).show();
                             return;

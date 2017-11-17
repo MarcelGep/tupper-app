@@ -2,26 +2,18 @@ package com.tupperware.marcel.tupperware;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.icu.text.SimpleDateFormat;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -35,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //startActivity(new Intent(getApplicationContext(), ListArticles.class));
 
         toolbar = (Toolbar) findViewById(R.id.toolbar1);
         setSupportActionBar(toolbar);
@@ -43,10 +36,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         drawerLayoutAll = (DrawerLayout) findViewById(R.id.drawerlayoutall);
-        drawerToggle = new ActionBarDrawerToggle(MainActivity.this, drawerLayoutAll, R.string.auf, R.string.zu);
-        drawerLayoutAll.setDrawerListener(drawerToggle);
+        drawerToggle = new ActionBarDrawerToggle(this,
+                                                    drawerLayoutAll,
+                                                    toolbar,
+                                                    R.string.auf, R.string.zu);
+        drawerLayoutAll.addDrawerListener(drawerToggle);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         drawerToggle.syncState();
 
         navigationView = (NavigationView) findViewById(R.id.navView);
@@ -68,21 +63,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
 
-                drawerLayoutAll.closeDrawers();
+                drawerLayoutAll.closeDrawer(GravityCompat.START);
                 item.setChecked(true);
                 return false;
             }
         });
-
-        Button bAddArticle, bShowArticles, bShowCatalog;
-
-        bAddArticle = (Button) findViewById(R.id.btnSaveArticle);
-        bShowArticles = (Button) findViewById(R.id.btnShowArticles);
-        bShowCatalog = (Button) findViewById(R.id.btnShowCatalog);
-
-        bAddArticle.setOnClickListener(this);
-        bShowArticles.setOnClickListener(this);
-        bShowCatalog.setOnClickListener(this);
     }
 
     @Override
@@ -115,14 +100,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.btnSaveArticle:
                 startActivity(new Intent(this, NewCatalogArticle.class));
-                break;
-
-            case R.id.btnShowArticles:
-                startActivity(new Intent(this, ListArticles.class));
-                break;
-
-            case R.id.btnShowCatalog:
-                startActivity(new Intent(this, ListCatalog.class));
                 break;
         }
     }
